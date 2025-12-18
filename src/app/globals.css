@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  
+  /* Brand Colors */
+  --brand-red: #ff0000;
+  --brand-black: #000000;
+  --brand-white: #ffffff;
+  
+  /* Accents */
+  --accent-red: #dc2626;
+  --accent-gray: #1f1f1f;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .glass-panel {
+    background: rgba(31, 31, 31, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .neon-text {
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+  }
+  
+  .neon-border {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  }
+}

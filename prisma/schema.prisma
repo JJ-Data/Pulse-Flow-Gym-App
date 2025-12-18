@@ -1,0 +1,154 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(MEMBER)
+  image     String?
+  goals     String?
+  phone     String?
+  address   String?
+  weight      Float?
+  height      Float?
+  streak      Int      @default(0)
+  lastCheckIn DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscription Subscription?
+  bookings     Booking[]
+  feedback     Feedback[]
+  payments     Payment[]
+  streakLogs   StreakLog[]
+}
+
+model StreakLog {
+  id     String   @id @default(cuid())
+  userId String
+  date   DateTime @default(now())
+  user   User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+}
+
+model GymPlan {
+  id          String   @id @default(cuid())
+  name        String
+  price       Float
+  features    String[]
+  duration    Int      // in months
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions Subscription[]
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Float
+  currency  String   @default("NGN")
+  status    String
+  reference String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  userId    String             @unique
+  planId    String
+  plan      GymPlan            @relation(fields: [planId], references: [id])
+  status    SubscriptionStatus @default(ACTIVE)
+  startDate DateTime           @default(now())
+  endDate   DateTime
+  user      User               @relation(fields: [userId], references: [id])
+}
+
+model Class {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  trainer     String
+  time        DateTime
+  duration    Int       // in minutes
+  capacity    Int
+  intensity   Intensity
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  bookings Booking[]
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  userId    String
+  classId   String
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime      @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  class Class @relation(fields: [classId], references: [id])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+  TRAINER
+}
+
+// We can keep the enum for legacy or remove it if not used. 
+// I'll comment it out to avoid confusion with the new GymPlan model.
+// enum SubscriptionPlan {
+//   MONTHLY
+//   QUARTERLY
+//   ANNUAL
+// }
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  PENDING
+}
+
+enum Intensity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  WAITLIST
+}
